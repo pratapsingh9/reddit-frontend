@@ -1,8 +1,6 @@
-// app/_layout.tsx
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { ThemeProvider } from './context/ThemeContext';
-
+import { ThemeProvider } from './theme/ThemeProvider';
 
 export default function RootLayout() {
   return (
@@ -13,7 +11,7 @@ export default function RootLayout() {
           name="index" 
           options={{ 
             headerShown: false,
-            animation: 'fade',
+            animation: 'slide_from_bottom',
           }} 
         />
         <Stack.Screen 
@@ -28,10 +26,6 @@ export default function RootLayout() {
           options={{ 
             title: 'Log In',
             presentation: 'modal',
-            headerStyle: {
-              backgroundColor: '#1a1a1a', 
-            },
-            headerTintColor: '#fff', 
           }} 
         />
         <Stack.Screen 
@@ -39,10 +33,13 @@ export default function RootLayout() {
           options={{ 
             title: 'Create Account',
             presentation: 'modal',
-            headerStyle: {
-              backgroundColor: '#1a1a1a',
-            },
-            headerTintColor: '#fff',
+          }} 
+        />
+        <Stack.Screen 
+          name="home/main" 
+          options={{ 
+            title: 'Reddit Clone',
+            presentation: 'modal',
           }} 
         />
       </Stack>

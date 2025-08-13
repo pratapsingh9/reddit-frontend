@@ -1,107 +1,132 @@
-import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
-import { Link } from 'expo-router';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  Dimensions,
+} from 'react-native';
+import { Link, useRouter } from 'expo-router';
+import { useTheme } from '../theme/ThemeProvider';
 
-export default function RegisterScreen() {
+const { width } = Dimensions.get('window');
+
+const RegisterScreen = () => {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const router = useRouter();
+  const { theme } = useTheme();
+
+  const handleSubmit = () => {
+    console.log({ email, username, password });
+    router.navigate('/auth/otp');
+  };
 
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
       <View style={styles.innerContainer}>
-        <Text style={styles.title}>Create Account</Text>
-        
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-        
-        <TextInput
-          style={styles.input}
-          placeholder="Username"
-          value={username}
-          onChangeText={setUsername}
-          autoCapitalize="none"
-        />
-        
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
+        <View style={styles.header}>
+          <Text style={[styles.headerTitle, { color: theme.colors.primary }]}>reddit</Text>
+          <Text style={[styles.headerSubtitle, { color: theme.colors.text }]}>
+            Create your account
+          </Text>
+        </View>
 
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Continue</Text>
-        </TouchableOpacity>
+        <View style={styles.formContainer}>
+          <TextInput
+            style={[styles.input, { borderColor: theme.colors.border, color: theme.colors.text }]}
+            placeholder="Email"
+            placeholderTextColor={theme.colors.placeholder}
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoComplete="email"
+          />
+          <TextInput
+            style={[styles.input, { borderColor: theme.colors.border, color: theme.colors.text }]}
+            placeholder="Username"
+            placeholderTextColor={theme.colors.placeholder}
+            value={username}
+            onChangeText={setUsername}
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoComplete="username"
+          />
+          <TextInput
+            style={[styles.input, { borderColor: theme.colors.border, color: theme.colors.text }]}
+            placeholder="Password"
+            placeholderTextColor={theme.colors.placeholder}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            autoComplete="new-password"
+          />
+
+          <TouchableOpacity style={[styles.button, { backgroundColor: theme.colors.primary }]} onPress={handleSubmit}>
+            <Text style={styles.buttonText}>Continue</Text>
+          </TouchableOpacity>
+        </View>
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Already a redditor? </Text>
-          <Link href="/auth/login" style={styles.footerLink}>
-            Log In
+          <Text style={[styles.footerText, { color: theme.colors.textSecondary }]}>Already a redditor? </Text>
+          <Link href="/auth/login" asChild>
+            <TouchableOpacity>
+              <Text style={[styles.footerLink, { color: theme.colors.primaryLight }]}>Log in</Text>
+            </TouchableOpacity>
           </Link>
         </View>
       </View>
     </KeyboardAvoidingView>
   );
-}
+};
+
+export default RegisterScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
+  container: { flex: 1 },
   innerContainer: {
     flex: 1,
-    padding: 20,
+    padding: 24,
     justifyContent: 'center',
+    maxWidth: 500,
+    width: '100%',
+    alignSelf: 'center',
   },
-  title: {
-    fontSize: 24,
-    fontWeight: '600',
-    marginBottom: 30,
-    color: '#1c1c1c',
-  },
+  header: { marginBottom: 32, alignItems: 'center' },
+  headerTitle: { fontSize: 24, fontWeight: 'bold', marginBottom: 8 },
+  headerSubtitle: { fontSize: 18, textAlign: 'center' },
+  formContainer: { marginBottom: 24 },
   input: {
-    height: 50,
+    height: 48,
     borderWidth: 1,
-    borderColor: '#e5e5e5',
-    borderRadius: 5,
-    paddingHorizontal: 15,
-    marginBottom: 15,
-    backgroundColor: '#f8f9fa',
+    borderRadius: 4,
+    paddingHorizontal: 16,
+    marginBottom: 16,
+    backgroundColor: '#F6F7F8',
+    fontSize: 14,
   },
   button: {
-    backgroundColor: '#ff4500',
-    padding: 15,
-    borderRadius: 5,
+    padding: 16,
+    borderRadius: 20,
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  buttonText: {
-    color: 'white',
-    fontWeight: '600',
-    fontSize: 16,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 20,
-  },
-  footerText: {
-    color: '#878a8c',
-  },
-  footerLink: {
-    color: '#0079d3',
-    fontWeight: '600',
-  },
+  buttonText: { color: '#fff', fontWeight: '600', fontSize: 14 },
+  footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 24 },
+  footerText: { fontSize: 14 },
+  footerLink: { fontWeight: '600', fontSize: 14 },
 });
