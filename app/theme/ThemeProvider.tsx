@@ -31,13 +31,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setColorScheme,
     setIsSystemTheme,
   } = useThemeStore();
-  
+
   useEffect(() => {
     initialize();
   }, []);
-  
+
   const theme = colorScheme === 'dark' ? DarkTheme : LightTheme;
-  
+
   return (
     <ThemeContext.Provider
       value={{

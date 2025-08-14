@@ -23,9 +23,9 @@ interface ActionButtonProps {
   children: React.ReactNode;
 }
 
-const ActionButton = memo(({ style, textStyle, onPress, children }: ActionButtonProps) => {
+const ActionButton = memo(function ActionButton({ style, textStyle, onPress, children }: ActionButtonProps) {
   const { theme } = useTheme();
-  
+
   return (
     <Pressable
       style={({ pressed }) => [

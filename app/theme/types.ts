@@ -60,33 +60,29 @@ export interface ThemeTypography {
 }
 
 export interface ThemeColors {
-  // Primary colors
   primary: string;
   primaryDark: string;
   primaryLight: string;
-  
-  // Background colors
+
   background: string;
   backgroundSecondary: string;
   backgroundTertiary: string;
-  
-  // Text colors
+
   text: string;
   textSecondary: string;
   textTertiary: string;
   textInverted: string;
-  
-  // Status colors
+
   upvote: string;
   downvote: string;
   success: string;
   warning: string;
   error: string;
-  
-  // UI elements
+
   border: string;
   placeholder: string;
   highlight: string;
+  inputBackground: string;
 }
 
 export interface Theme {

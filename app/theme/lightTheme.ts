@@ -5,25 +5,26 @@ export const LightTheme: Theme = {
     primary: '#FF4500',
     primaryDark: '#CC3700',
     primaryLight: '#FF8C66',
-    
+
     background: '#FFFFFF',
     backgroundSecondary: '#F8F9FA',
     backgroundTertiary: '#EDEFF1',
-    
+
     text: '#1A1A1B',
     textSecondary: '#787C7E',
     textTertiary: '#A0A0C0',
     textInverted: '#FFFFFF',
-    
+
     upvote: '#FF4500',
     downvote: '#7193FF',
     success: '#46D160',
     warning: '#FFB800',
     error: '#EA0027',
-    
+
     border: '#EDEFF1',
     placeholder: '#A0A0C0',
     highlight: '#F6F7F8',
+    inputBackground: '#F6F7F8',
   },
   spacing: {
     none: 0,

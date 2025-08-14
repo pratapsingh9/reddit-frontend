@@ -1,20 +1,43 @@
+import { Link, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  View,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
+  View,
 } from 'react-native';
-import { Link } from 'expo-router';
+import { fetchJson, setAuthToken } from '../lib/api';
 import { useTheme } from '../theme/ThemeProvider';
 
 const LoginScreen = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const { theme } = useTheme();
+  const router = useRouter();
+
+  const handleLogin = async () => {
+    if (submitting) return;
+    setSubmitting(true);
+    try {
+      const res = await fetchJson<{ token: string; user: { id: string; username: string } }>(
+        '/api/auth/login',
+        {
+          method: 'POST',
+          body: JSON.stringify({ username }),
+        }
+      );
+      setAuthToken(res.token);
+      router.replace('/home/main');
+    } catch {
+      // ignore for now
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -25,7 +48,14 @@ const LoginScreen = () => {
         <Text style={[styles.title, { color: theme.colors.text }]}>Log In</Text>
 
         <TextInput
-          style={[styles.input, { borderColor: theme.colors.border, color: theme.colors.text }]}
+          style={[
+            styles.input,
+            {
+              borderColor: theme.colors.border,
+              backgroundColor: theme.colors.inputBackground,
+              color: theme.colors.text,
+            }
+          ]}
           placeholder="Username"
           placeholderTextColor={theme.colors.placeholder}
           value={username}
@@ -34,23 +64,33 @@ const LoginScreen = () => {
         />
 
         <TextInput
-          style={[styles.input, { borderColor: theme.colors.border, color: theme.colors.text }]}
+          style={[
+            styles.input,
+            {
+              borderColor: theme.colors.border,
+              backgroundColor: theme.colors.inputBackground,
+              color: theme.colors.text,
+            }
+          ]}
           placeholder="Password"
           placeholderTextColor={theme.colors.placeholder}
           value={password}
           onChangeText={setPassword}
           secureTextEntry
+          autoComplete="password"
         />
 
-        <TouchableOpacity style={[styles.button, { backgroundColor: theme.colors.primary }]}>
-          <Text style={styles.buttonText}>Log In</Text>
+        <TouchableOpacity style={[styles.button, { backgroundColor: theme.colors.primary }]} onPress={handleLogin} disabled={submitting}>
+          <Text style={styles.buttonText}>{submitting ? 'Logging in…' : 'Log In'}</Text>
         </TouchableOpacity>
 
         <View style={styles.footer}>
-          <Text style={[styles.footerText, { color: theme.colors.textSecondary }]}>New to Reddit? </Text>
+          <Text style={[styles.footerText, { color: theme.colors.textSecondary }]}>
+            New to Reddit?{' '}
+          </Text>
           <Link href="/auth/register" asChild>
             <TouchableOpacity>
-              <Text style={[styles.footerLink, { color: theme.colors.primaryLight }]}>Sign Up</Text>
+              <Text style={[styles.footerLink, { color: theme.colors.primary }]}>Sign Up</Text>
             </TouchableOpacity>
           </Link>
         </View>
@@ -71,7 +111,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingHorizontal: 15,
     marginBottom: 15,
-    backgroundColor: '#f8f9fa',
+    fontSize: 14,
   },
   button: {
     padding: 15,

@@ -1,20 +1,21 @@
-import React from 'react';
+import { Feather, FontAwesome, Ionicons } from '@expo/vector-icons';
+import React, { useEffect, useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  ScrollView,
-  Pressable,
-  Dimensions,
-  ViewStyle,
-  TextStyle,
-  ImageStyle,
-  SafeAreaView,
-  Platform,
-  StatusBar
+    Dimensions,
+    Image,
+    ImageStyle,
+    Platform,
+    Pressable,
+    SafeAreaView,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextStyle,
+    View,
+    ViewStyle
 } from 'react-native';
-import { Ionicons, MaterialIcons, FontAwesome, Feather } from '@expo/vector-icons';
+import { fetchJson } from '../lib/api';
 import { useTheme } from '../theme/ThemeProvider';
 
 const { width } = Dimensions.get('window');
@@ -30,37 +31,17 @@ interface PostData {
   image?: string;
 }
 
-const posts: PostData[] = [
-  {
-    id: '1',
-    title: 'Just adopted this little guy today! Meet Max!',
-    subreddit: 'r/aww',
-    author: 'u/doglover42',
-    time: '5h ago',
-    upvotes: '12.3k',
-    comments: '842',
-    image: 'https://i.redd.it/9bf67ygj7a0d1.jpeg',
-  },
-  {
-    id: '2',
-    title: 'TIL that honey never spoils. Archaeologists have found pots of honey in ancient Egyptian tombs that are over 3,000 years old and still perfectly good to eat.',
-    subreddit: 'r/todayilearned',
-    author: 'u/factfinder',
-    time: '8h ago',
-    upvotes: '24.7k',
-    comments: '1.2k',
-  },
-  {
-    id: '3',
-    title: 'My homemade pizza from last night',
-    subreddit: 'r/food',
-    author: 'u/pizzalover',
-    time: '3h ago',
-    upvotes: '5.6k',
-    comments: '312',
-    image: 'https://i.redd.it/homemade-pizza-xyz.jpg',
-  },
-];
+type ApiPost = {
+  id: string;
+  title: string;
+  subreddit: string;
+  author: string;
+  time: string;
+  upvotes: number;
+  comments: number;
+  image?: string;
+  content?: string;
+};
 
 interface PostProps {
   post: PostData;
@@ -185,6 +166,38 @@ const Post: React.FC<PostProps> = ({ post }) => {
 
 export default function HomeScreen() {
   const { theme } = useTheme();
+  const [posts, setPosts] = useState<PostData[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    const formatVotes = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(1)}k` : `${n}`);
+    const load = async () => {
+      try {
+        const data = await fetchJson<ApiPost[]>(`/api/posts`);
+        if (!isMounted) return;
+        const mapped: PostData[] = data.map((p) => ({
+          id: p.id,
+          title: p.title,
+          subreddit: p.subreddit,
+          author: p.author,
+          time: p.time,
+          upvotes: formatVotes(p.upvotes),
+          comments: `${p.comments}`,
+          image: p.image,
+        }));
+        setPosts(mapped);
+      } catch (_e) {
+        setPosts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const styles = StyleSheet.create({
     safeArea: {
@@ -315,15 +328,21 @@ export default function HomeScreen() {
         </View>
 
         {/* Posts */}
-        <ScrollView
-          style={styles.postsContainer}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: theme.spacing.lg }}
-        >
-          {posts.map(post => (
-            <Post key={post.id} post={post} />
-          ))}
-        </ScrollView>
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <Text style={styles.loadingText}>Loading…</Text>
+          </View>
+        ) : (
+          <ScrollView
+            style={styles.postsContainer}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: theme.spacing.lg }}
+          >
+            {posts.map(post => (
+              <Post key={post.id} post={post} />
+            ))}
+          </ScrollView>
+        )}
       </View>
     </SafeAreaView>
   );

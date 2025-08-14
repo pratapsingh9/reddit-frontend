@@ -1,41 +1,76 @@
-import { View, Text, StyleSheet, Image, ScrollView } from "react-native";
+import { useLocalSearchParams } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import { fetchJson } from "../lib/api";
+
+type ApiPost = {
+  id: string;
+  title: string;
+  subreddit: string;
+  author: string;
+  time: string;
+  upvotes: number;
+  comments: number;
+  image?: string;
+  content?: string;
+};
+
+type ApiComment = {
+  id: string;
+  postId: string;
+  author: string;
+  content: string;
+  time: string;
+  votes: number;
+};
 
 export default function PostDetail() {
-  // In a real app, you would get the post data from the route params
-  const post = {
-    id: "1",
-    title: "Just adopted this cute puppy!",
-    author: "petlover42",
-    community: "r/aww",
-    content: "After months of waiting, I finally got to bring this little guy home. Meet Max!",
-    votes: 1245,
-    comments: 243,
-    time: "4h",
-    image: "https://i.imgur.com/J5UOR2Q.jpg"
-  };
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const [post, setPost] = useState<ApiPost | null>(null);
+  const [comments, setComments] = useState<ApiComment[]>([]);
 
-  const comments = [
-    {
-      id: "1",
-      author: "dogenthusiast",
-      content: "So adorable! What breed is he?",
-      time: "3h",
-      votes: 42
-    },
-    // More comments...
-  ];
+  useEffect(() => {
+    if (!id) return;
+    let isMounted = true;
+    const load = async () => {
+      try {
+        const [p, c] = await Promise.all([
+          fetchJson<ApiPost>(`/api/posts/${id}`),
+          fetchJson<ApiComment[]>(`/api/posts/${id}/comments`),
+        ]);
+        if (!isMounted) return;
+        setPost(p);
+        setComments(c);
+      } catch (_e) {
+        setPost(null);
+        setComments([]);
+      }
+    };
+    load();
+    return () => {
+      isMounted = false;
+    };
+  }, [id]);
+
+  if (!post) {
+    return (
+      <ScrollView style={styles.container}>
+        <Text>Loading…</Text>
+      </ScrollView>
+    );
+  }
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.post}>
-        <Text style={styles.community}>r/{post.community}</Text>
+        <Text style={styles.community}>{post.subreddit}</Text>
         <Text style={styles.title}>{post.title}</Text>
-        <Text style={styles.content}>{post.content}</Text>
+        {post.content ? <Text style={styles.content}>{post.content}</Text> : null}
         {post.image && (
           <Image source={{ uri: post.image }} style={styles.image} />
         )}
         <View style={styles.postFooter}>
-          <Text style={styles.author}>u/{post.author}</Text>
+          <Text style={styles.author}>{post.author}</Text>
           <Text style={styles.time}>{post.time}</Text>
         </View>
       </View>
@@ -44,7 +79,7 @@ export default function PostDetail() {
       
       {comments.map(comment => (
         <View key={comment.id} style={styles.comment}>
-          <Text style={styles.commentAuthor}>u/{comment.author}</Text>
+          <Text style={styles.commentAuthor}>{comment.author}</Text>
           <Text style={styles.commentContent}>{comment.content}</Text>
           <Text style={styles.commentFooter}>{comment.time} • {comment.votes} votes</Text>
         </View>

@@ -20,15 +20,9 @@ const OTPScreen = () => {
 
   const handleChangeText = (text: string, index: number) => {
     if (text.length > 1) {
-      const pastedOtp = text.split('').slice(0, 6);
-      const newOtp = [...otp];
-      pastedOtp.forEach((char, i) => {
-        if (i < 6) newOtp[i] = char;
-      });
+      const newOtp = text.split('').slice(0, 6);
       setOtp(newOtp);
-      if (pastedOtp.length === 6) {
-        otpInputs.current[5]?.focus();
-      }
+      if (newOtp.length === 6) otpInputs.current[5]?.focus();
       return;
     }
 
@@ -56,16 +50,11 @@ const OTPScreen = () => {
       setIsLoading(false);
       return;
     }
-
     console.log('Verifying OTP:', otpCode);
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
+    setTimeout(() => setIsLoading(false), 1500);
   };
 
-  const handleResend = () => {
-    console.log('Resending OTP...');
-  };
+  const handleResend = () => console.log('Resending OTP...');
 
   return (
     <KeyboardAvoidingView
@@ -87,7 +76,11 @@ const OTPScreen = () => {
               ref={(ref) => { otpInputs.current[index] = ref; }}
               style={[
                 styles.otpInput,
-                { borderColor: theme.colors.border, color: theme.colors.text },
+                {
+                  borderColor: theme.colors.border,
+                  backgroundColor: theme.colors.inputBackground,
+                  color: theme.colors.text,
+                }
               ]}
               value={digit}
               onChangeText={(text) => handleChangeText(text, index)}
@@ -114,15 +107,17 @@ const OTPScreen = () => {
         </TouchableOpacity>
 
         <View style={styles.resendContainer}>
-          <Text style={[styles.resendText, { color: theme.colors.textSecondary }]}>Didn't receive a code? </Text>
+          <Text style={[styles.resendText, { color: theme.colors.textSecondary }]}>
+            Didn&apos;t receive a code?{' '}
+          </Text>
           <TouchableOpacity onPress={handleResend}>
-            <Text style={[styles.resendLink, { color: theme.colors.primaryLight }]}>Resend</Text>
+            <Text style={[styles.resendLink, { color: theme.colors.primary }]}>Resend</Text>
           </TouchableOpacity>
         </View>
 
         <Link href="/auth/register" asChild>
           <TouchableOpacity style={styles.backButton}>
-            <Text style={[styles.backButtonText, { color: theme.colors.primaryLight }]}>
+            <Text style={[styles.backButtonText, { color: theme.colors.primary }]}>
               Back to registration
             </Text>
           </TouchableOpacity>
@@ -153,7 +148,6 @@ const styles = StyleSheet.create({
     height: 60,
     borderWidth: 1,
     borderRadius: 4,
-    backgroundColor: '#F6F7F8',
     fontSize: 18,
     textAlign: 'center',
     fontWeight: 'bold',

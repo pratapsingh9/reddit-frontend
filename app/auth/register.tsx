@@ -1,18 +1,16 @@
+import { Link, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  View,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  Dimensions,
+  View,
 } from 'react-native';
-import { Link, useRouter } from 'expo-router';
+import { fetchJson, setAuthToken } from '../lib/api';
 import { useTheme } from '../theme/ThemeProvider';
-
-const { width } = Dimensions.get('window');
 
 const RegisterScreen = () => {
   const [email, setEmail] = useState('');
@@ -21,9 +19,26 @@ const RegisterScreen = () => {
   const router = useRouter();
   const { theme } = useTheme();
 
-  const handleSubmit = () => {
-    console.log({ email, username, password });
-    router.navigate('/auth/otp');
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async () => {
+    if (submitting) return;
+    setSubmitting(true);
+    try {
+      const res = await fetchJson<{ token: string; user: { id: string; username: string; email?: string } }>(
+        '/api/auth/register',
+        {
+          method: 'POST',
+          body: JSON.stringify({ email, username }),
+        }
+      );
+      setAuthToken(res.token);
+      router.replace('/home/main');
+    } catch (_e) {
+      // ignore for now
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -41,7 +56,14 @@ const RegisterScreen = () => {
 
         <View style={styles.formContainer}>
           <TextInput
-            style={[styles.input, { borderColor: theme.colors.border, color: theme.colors.text }]}
+            style={[
+              styles.input,
+              {
+                borderColor: theme.colors.border,
+                backgroundColor: theme.colors.inputBackground,
+                color: theme.colors.text,
+              }
+            ]}
             placeholder="Email"
             placeholderTextColor={theme.colors.placeholder}
             value={email}
@@ -52,7 +74,14 @@ const RegisterScreen = () => {
             autoComplete="email"
           />
           <TextInput
-            style={[styles.input, { borderColor: theme.colors.border, color: theme.colors.text }]}
+            style={[
+              styles.input,
+              {
+                borderColor: theme.colors.border,
+                backgroundColor: theme.colors.inputBackground,
+                color: theme.colors.text,
+              }
+            ]}
             placeholder="Username"
             placeholderTextColor={theme.colors.placeholder}
             value={username}
@@ -62,7 +91,14 @@ const RegisterScreen = () => {
             autoComplete="username"
           />
           <TextInput
-            style={[styles.input, { borderColor: theme.colors.border, color: theme.colors.text }]}
+            style={[
+              styles.input,
+              {
+                borderColor: theme.colors.border,
+                backgroundColor: theme.colors.inputBackground,
+                color: theme.colors.text,
+              }
+            ]}
             placeholder="Password"
             placeholderTextColor={theme.colors.placeholder}
             value={password}
@@ -71,16 +107,21 @@ const RegisterScreen = () => {
             autoComplete="new-password"
           />
 
-          <TouchableOpacity style={[styles.button, { backgroundColor: theme.colors.primary }]} onPress={handleSubmit}>
-            <Text style={styles.buttonText}>Continue</Text>
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: theme.colors.primary }]}
+            onPress={handleSubmit}
+          >
+            <Text style={styles.buttonText}>{submitting ? 'Submitting…' : 'Continue'}</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.footer}>
-          <Text style={[styles.footerText, { color: theme.colors.textSecondary }]}>Already a redditor? </Text>
+          <Text style={[styles.footerText, { color: theme.colors.textSecondary }]}>
+            Already a redditor?{' '}
+          </Text>
           <Link href="/auth/login" asChild>
             <TouchableOpacity>
-              <Text style={[styles.footerLink, { color: theme.colors.primaryLight }]}>Log in</Text>
+              <Text style={[styles.footerLink, { color: theme.colors.primary }]}>Log in</Text>
             </TouchableOpacity>
           </Link>
         </View>
@@ -103,7 +144,7 @@ const styles = StyleSheet.create({
   },
   header: { marginBottom: 32, alignItems: 'center' },
   headerTitle: { fontSize: 24, fontWeight: 'bold', marginBottom: 8 },
-  headerSubtitle: { fontSize: 18, textAlign: 'center' },
+  headerSubtitle: { fontSize: 18 },
   formContainer: { marginBottom: 24 },
   input: {
     height: 48,
@@ -111,7 +152,6 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     paddingHorizontal: 16,
     marginBottom: 16,
-    backgroundColor: '#F6F7F8',
     fontSize: 14,
   },
   button: {
