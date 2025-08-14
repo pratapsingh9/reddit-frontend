@@ -1,7 +1,8 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { View, useColorScheme } from 'react-native';
-import { useTheme , ThemeProvider } from './theme/ThemeProvider';
+import { View } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { ThemeProvider, useTheme } from './theme/ThemeProvider';
 // Wrapper to sync StatusBar with theme
 function RootLayoutWithTheme() {
   const { theme } = useTheme();
@@ -14,7 +15,8 @@ function RootLayoutWithTheme() {
         backgroundColor={theme.colors.background}
       />
 
-      <Stack>
+      <View style={{ flex: 1, paddingTop: 8, paddingBottom: 8, backgroundColor: theme.colors.background }}>
+        <Stack>
         <Stack.Screen
           name="index"
           options={{
@@ -27,6 +29,13 @@ function RootLayoutWithTheme() {
           options={{
             headerShown: false,
             animation: 'slide_from_right',
+          }}
+        />
+        <Stack.Screen
+          name="home/create"
+          options={{
+            title: 'Create Post',
+            presentation: 'modal',
           }}
         />
         <Stack.Screen
@@ -71,7 +80,15 @@ function RootLayoutWithTheme() {
             },
           }}
         />
-      </Stack>
+        <Stack.Screen
+          name="home/search"
+          options={{
+            title: 'Search',
+            presentation: 'modal',
+          }}
+        />
+        </Stack>
+      </View>
     </>
   );
 }
@@ -79,8 +96,10 @@ function RootLayoutWithTheme() {
 // Main layout with ThemeProvider
 export default function RootLayout() {
   return (
-    <ThemeProvider>
-      <RootLayoutWithTheme />
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <RootLayoutWithTheme />
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }

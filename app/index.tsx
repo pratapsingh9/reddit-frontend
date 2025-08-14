@@ -1,17 +1,18 @@
+import { useRouter } from 'expo-router';
 import React, { memo, useCallback } from 'react';
 import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  Pressable,
-  StatusBar,
-  Dimensions,
-  ViewStyle,
-  TextStyle,
-  ImageStyle,
+    Dimensions,
+    Image,
+    ImageStyle,
+    Platform,
+    Pressable,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextStyle,
+    View,
+    ViewStyle,
 } from 'react-native';
-import { Link, useRouter } from 'expo-router';
 import { useTheme } from './theme/ThemeProvider';
 
 const { width } = Dimensions.get('window');
@@ -53,7 +54,7 @@ const WelcomeScreen = () => {
   
   const handleSignIn = useCallback(() => console.log('Sign In pressed'), []);
   const handleGuestMode = () => {
-    router.replace('/home/main');
+    router.replace('/home/explore');
   };
   const handleCreateAccount = () => {
     router.navigate('/auth/register');
@@ -152,9 +153,10 @@ const WelcomeScreen = () => {
     <>
       <StatusBar 
         barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'} 
-        backgroundColor={theme.colors.background} 
+        backgroundColor={theme.colors.background}
+        translucent={true}
       />
-      <View style={styles.container}>
+      <View style={[styles.container, { paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }] }>
         {/* Logo */}
         <View style={styles.logoContainer}>
           <Image
